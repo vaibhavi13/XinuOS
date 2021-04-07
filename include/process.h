@@ -5,7 +5,8 @@
 #define	NPROC		8
 #endif	
 
-#define NUM_PAGE_TABLE_ENTRIES 4096 /* 1 entry per 1MB, so this covers 4G address space */
+/* this should be moved */
+#define NUM_PAGE_TABLE_ENTRIES 0x1000
 
 /* Process state constants */
 
