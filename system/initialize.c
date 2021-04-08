@@ -14,7 +14,9 @@ extern	void main(void);	/* Main is the first process created	*/
 static	void sysinit(); 	/* Internal system initialization	*/
 extern	void heartbeat(); 	/* Internal hearbeat initialization	*/
 extern	void meminit(void);	/* Initializes the free memory list	*/
-local	process startup(void);	/* Process to finish startup tasks	*/
+
+//local	process startup(void);	/* Process to finish startup tasks	*/
+void startup(void);
 
 /* Declarations of major kernel variables */
 
@@ -120,8 +122,16 @@ void	nulluser()
 	
 	/* Create a process to finish startup and start main */
 	
-	resume(create((void *)startup, INITSTK, INITPRIO,
-					"Startup process", 0, NULL));
+	/* resume(create((void *)startup, INITSTK, INITPRIO, */
+	/* 				"Startup process", 0, NULL)); */
+
+  /* let's try just calling startup here. */
+  startup();
+
+  /* Create a process to execute function main() */
+
+	resume(create((void *)main, INITSTK, INITPRIO,
+					"Main process", 0, NULL));
 
 	/* Become the Null process (i.e., guarantee that the CPU has	*/
 	/*  something to run when no other process is ready to execute)	*/
@@ -141,7 +151,8 @@ void	nulluser()
  *
  *------------------------------------------------------------------------
  */
-local process	startup(void)
+//local process
+void startup(void)
 {
 #ifdef ETHER0 /* if there's eth networking... */
 	
@@ -176,14 +187,11 @@ local process	startup(void)
 	
 #endif
 	
-	/* Create a process to execute function main() */
 
-	resume(create((void *)main, INITSTK, INITPRIO,
-					"Main process", 0, NULL));
 
 	/* Startup process exits at this point */
 
-	return OK;
+  //	return OK;
 }
 
 /*------------------------------------------------------------------------
