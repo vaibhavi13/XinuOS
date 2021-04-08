@@ -97,7 +97,7 @@ void	nulluser()
 #ifdef MMU
   /* MMU */
 
-	initializeMMU();
+	initialize_mmu();
 
 #endif
 
