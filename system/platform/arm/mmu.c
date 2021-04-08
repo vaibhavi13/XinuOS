@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "../../../include/memmax.h"
+#include "../../../include/platform/arm/armv7a.h"
 
 #endif
 
@@ -47,7 +49,7 @@ uint32_t page_table[NPROC][NUM_PAGE_TABLE_ENTRIES];
 
 #ifndef MT
 
-void initializeMMU(void) {
+void initialize_mmu(void) {
 
 #else
 
@@ -58,9 +60,10 @@ int main(int argc, char *argv[]) {
     int i,j,k=0;
 
     /* Identity mappings for the first 274 pages 34MB? */
-    for (i = 0; i < 274; i++){ // 258
+    for (i = 0; i < 275; i++){ // 258
       for (j = 0; j < NPROC; j++){
         page_table[j][i] = (i << 20 | (3 << 10) | CACHE_ENABLE | SECTION_BASE);
+        
 #ifdef MT
         printf("pt[%d][%08x]: %08x\n", j, i*1024*1024, page_table[j][i]);
 #endif
@@ -68,25 +71,31 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef MT
-    printf("----------------------\n");
+    printf("-------------------------\n");
 #endif    
     
     /* Per process mappings in here, except for the first two */
     for (j = 275; j <275+(512-275)/NPROC; j++){ 
       for (i=275,k = 2; k < NPROC;i++, k++){
         page_table[k][j] = (i << 20 | (3 << 10) | CACHE_ENABLE | SECTION_BASE);
+        
 #ifdef MT
         printf("pt[%d][%08x]: %08x\n", k, j*1024*1024, page_table[k][j]);
 #endif
       }
     }
 
+#ifdef MT
+    printf("-------------------------\n");
+#endif 
+
     /* common stack pages at the top */
     for (i = 510; i < 512; i++){ // 258
       for (j = 0; j < NPROC; j++){
         page_table[j][i] = (i << 20 | (3 << 10) | CACHE_ENABLE | SECTION_BASE);
+        
 #ifdef MT        
-printf("pt[%d][%08x]: %08x\n", j, i*1024*1024, page_table[j][i]);
+        printf("pt[%d][%08x]: %08x\n", j, i*1024*1024, page_table[j][i]);
 #endif
       }
 
@@ -123,7 +132,7 @@ void enableMMU(){
     uint32 reg;
 /* Enable the MMU */
     asm("mrc p15, 0, %0, c1, c0, 0" : "=r" (reg) : : "cc");
-    reg|=0x1;
+    reg |= ARMV7A_C1CTL_M;
     asm volatile("mcr p15, 0, %0, c1, c0, 0" : : "r" (reg) : "cc");
 }
 
