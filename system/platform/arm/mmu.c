@@ -23,10 +23,11 @@
 #endif
 
 #define MEM_SIZE  0x20000000   /* 512MB */
-#define MY_PAGE_SIZE 0x100000 /* 1MB */
+#define SECTION_SIZE 0x100000 /* 1MB */
 
 #ifdef MT
-#define NUM_PAGE_TABLE_ENTRIES 0x1000 /* 4K, 4096 */
+//#define NUM_PAGE_TABLE_ENTRIES 0x1000 /* 4K, 4096 */
+#define NUM_PAGE_TABLE_ENTRIES 256
 #endif
 
 #define SDRAM_START       0x80000000
@@ -35,9 +36,9 @@
 #define SECTION_BASE      0x02        /* b10 this is a section base, not PT base */
 #define CACHE_ENABLE      0x10
 #define CACHE_WRITEBACK   0x1e
-#define PERM_RW 0x0c00   /* this was 3 << 10 -- bits 10 and 11, RW permission */
+#define AP_RW 0x0c00   /* this was 3 << 10 -- bits 10 and 11, RW access permission */
 
-#define BREAK 320
+#define BREAK 64 // 320
 
 #ifndef MT
 
@@ -60,14 +61,16 @@ int main(int argc, char *argv[]) {
 #endif
 
     int i,j,k=0;
+    int pg;
+    int asid;
 
-    /* Identity mappings for the first 274 pages 34MB? */
-    for (i = 0; i < BREAK; i++){ // 258
-      for (j = 0; j < NPROC; j++){
-        page_table[j][i] = (i << 20 | PERM_RW | CACHE_ENABLE | SECTION_BASE);
+    /* Identity mappings for the first 274 pages was 258? */
+    for (pg = 0; pg < NUM_PAGE_TABLE_ENTRIES; pg++){ 
+      for (asid = 0; asid < NPROC; asid++){
+        page_table[asid][pg] = (pg << 20 | AP_RW | CACHE_ENABLE | SECTION_BASE);
         
 #ifdef MT
-        printf("pt[%d][%08x]: %08x\n", j, i*1024*1024, page_table[j][i]);
+        printf("pt[%d][%08x]: %08x\n", asid, pg*1024*1024, page_table[asid][pg]);
 #endif
       }
     }
@@ -79,10 +82,10 @@ int main(int argc, char *argv[]) {
     /* Per process mappings in here, except for the first two */
     for (j = BREAK; j <BREAK+(512-32)/NPROC; j++){ 
       for (i=BREAK,k = 2; k < NPROC;i++, k++){
-        page_table[k][j] = (i << 20 | PERM_RW | CACHE_ENABLE | SECTION_BASE);
+        //page_table[k][j] = (i << 20 | AP_RW | CACHE_ENABLE | SECTION_BASE);
         
 #ifdef MT
-        printf("pt[%d][%08x]: %08x\n", k, j*1024*1024, page_table[k][j]);
+        //        printf("pt[%d][%08x]: %08x\n", k, j*1024*1024, page_table[k][j]);
 #endif
       }
     }
@@ -94,10 +97,10 @@ int main(int argc, char *argv[]) {
     /* common stack pages at the top */
     for (i = 510; i < 512; i++){ // 258
       for (j = 0; j < NPROC; j++){
-        page_table[j][i] = (i << 20 | PERM_RW | CACHE_ENABLE | SECTION_BASE);
+        //page_table[j][i] = (i << 20 | AP_RW | CACHE_ENABLE | SECTION_BASE);
         
 #ifdef MT        
-        printf("pt[%d][%08x]: %08x\n", j, i*1024*1024, page_table[j][i]);
+        //        printf("pt[%d][%08x]: %08x\n", j, i*1024*1024, page_table[j][i]);
 #endif
       }
 
