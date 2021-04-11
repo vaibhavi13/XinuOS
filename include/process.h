@@ -6,7 +6,8 @@
 #endif	
 
 /* this should be moved */
-#define NUM_PAGE_TABLE_ENTRIES 0x1000
+//#define NUM_PAGE_TABLE_ENTRIES 0x1000
+//#define NUM_PAGE_TABLE_ENTRIES 256
 
 /* Process state constants */
 
@@ -58,7 +59,7 @@ struct procent {		/* Entry in the process table		*/
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/
 #define	STACKMAGIC	0x0A0AAAA9
-extern uint32 __attribute__((aligned(16384))) page_table[NPROC][NUM_PAGE_TABLE_ENTRIES];
+//extern uint32 __attribute__((aligned(16384))) page_table[NPROC][NUM_PAGE_TABLE_ENTRIES];
 extern	struct	procent proctab[];
 extern	int32	prcount;	/* Currently active processes		*/
 extern	pid32	currpid;	/* Currently executing process		*/

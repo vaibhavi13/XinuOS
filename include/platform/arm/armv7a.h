@@ -1,6 +1,6 @@
 /* armv7a.h */
 
-#include <memmax.h>
+//#include <memmax.h>
 
 /* CPSR bits */
 

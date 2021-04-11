@@ -43,8 +43,10 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	preempt = QUANTUM;		/* Reset time slice for process	*/
 
 #ifdef MMU
-	FlushTLB();
 	setPageTable();
+  setAccessControl();
+  enableMMU();
+  //FlushTLB();
 #endif/*MMU*/
 
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
