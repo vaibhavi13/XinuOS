@@ -22,12 +22,12 @@
 #define NPROC 4
 #endif
 
-#define MEM_SIZE  0x20000000   /* 512MB */
-#define SECTION_SIZE 0x100000 /* 1MB */
+#define MEM_SIZE  0x20000000   /* 512MB. This is not used but should come from maxmem.h*/
+#define SECTION_SIZE 0x100000 /* 1MB. This is also not used, but is encoded in << 20 */
 
 #ifdef MT
 //#define NUM_PAGE_TABLE_ENTRIES 0x1000 /* 4K, 4096 */
-#define NUM_PAGE_TABLE_ENTRIES 256
+#define NUM_PAGE_TABLE_ENTRIES 256 /* this is a function of memsize / mapping size */
 #endif
 
 #define SDRAM_START       0x80000000
@@ -100,10 +100,7 @@ int main(int argc, char *argv[]) {
           pg_to_map = page_base + pg;
           pg_to_map_to = page_base_target + pg;
           pg_proc_offset = (pg * (NPROC-1));
-#ifdef MT
-          //printf("pg_to_map(%x), page_base(%x) + pg(%x) + pg_proc_offset(%x) -- page_base_target(%x), pg_to_map_to(%x)\n", 
-          //       pg_to_map, page_base, pg, pg_proc_offset, page_base_target, pg_to_map_to);
-#endif
+
           page_table[asid][pg_to_map] = 
             ((pg_to_map_to + asid + pg_proc_offset) << 20 | AP_RW | CACHE_ENABLE | SECTION_BASE);
         
@@ -130,25 +127,25 @@ int main(int argc, char *argv[]) {
  void set_page_table(){
 	uint32 pagetable =(uint32) page_table[currpid];
 	/* Copy the page table address to cp15 */
-    asm volatile("mcr p15, 0, %0, c2, c0, 0" : : "r" (pagetable) : "memory");
+  asm volatile("mcr p15, 0, %0, c2, c0, 0" : : "r" (pagetable) : "memory");
  }
 
 void set_access_control(){
-/* Set the access control to all-supervisor */
-    asm volatile("mcr p15, 0, %0, c3, c0, 0" : : "r" (~0));
+  /* Set the access control to all-supervisor */
+  asm volatile("mcr p15, 0, %0, c3, c0, 0" : : "r" (~0));
 }
 
 void flush_tlb(){
-/* Set the access control to all-supervisor */
+  /* flush the TLB */
   asm volatile("mcr p15, 0, %0, c8, c7, 0" : : "r" (0));
 }
 
 void enable_mmu(){
-    uint32 reg;
-/* Enable the MMU */
-    asm("mrc p15, 0, %0, c1, c0, 0" : "=r" (reg) : : "cc");
-    reg |= ARMV7A_C1CTL_M;
-    asm volatile("mcr p15, 0, %0, c1, c0, 0" : : "r" (reg) : "cc");
+  uint32 reg;
+  /* Enable the MMU */
+  asm("mrc p15, 0, %0, c1, c0, 0" : "=r" (reg) : : "cc");
+  reg |= ARMV7A_C1CTL_M;
+  asm volatile("mcr p15, 0, %0, c1, c0, 0" : : "r" (reg) : "cc");
 }
 
 void page_fault_handler(){
