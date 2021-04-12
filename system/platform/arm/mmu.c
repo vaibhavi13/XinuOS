@@ -120,30 +120,30 @@ int main(int argc, char *argv[]) {
 }
 #else
 
- setPageTable();    
- FlushTLB();
- setAccessControl();
- enableMMU(); 
+ set_page_table();    
+ flush_tlb();
+ set_access_control();
+ enable_mmu(); 
 }
 
  
- void setPageTable(){
+ void set_page_table(){
 	uint32 pagetable =(uint32) page_table[currpid];
 	/* Copy the page table address to cp15 */
     asm volatile("mcr p15, 0, %0, c2, c0, 0" : : "r" (pagetable) : "memory");
  }
 
-void setAccessControl(){
+void set_access_control(){
 /* Set the access control to all-supervisor */
     asm volatile("mcr p15, 0, %0, c3, c0, 0" : : "r" (~0));
 }
 
-void FlushTLB(){
+void flush_tlb(){
 /* Set the access control to all-supervisor */
   asm volatile("mcr p15, 0, %0, c8, c7, 0" : : "r" (0));
 }
 
-void enableMMU(){
+void enable_mmu(){
     uint32 reg;
 /* Enable the MMU */
     asm("mrc p15, 0, %0, c1, c0, 0" : "=r" (reg) : : "cc");
@@ -151,7 +151,7 @@ void enableMMU(){
     asm volatile("mcr p15, 0, %0, c1, c0, 0" : : "r" (reg) : "cc");
 }
 
-void pageFaultHandler(){
+void page_fault_handler(){
 	kprintf("Segmentation Fault\n");
 }
 

@@ -1,6 +1,9 @@
 /* resched.c - resched, resched_cntl */
 
 #include <xinu.h>
+#ifdef MMU
+#include <mmu.h>
+#endif
 
 struct	defer	Defer;
 
@@ -43,10 +46,8 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	preempt = QUANTUM;		/* Reset time slice for process	*/
 
 #ifdef MMU
-	setPageTable();
-  setAccessControl();
-  enableMMU();
-  //FlushTLB();
+	set_page_table();
+  flush_tlb();
 #endif/*MMU*/
 
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);

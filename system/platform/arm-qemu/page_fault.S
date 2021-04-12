@@ -11,7 +11,7 @@ page_fault:
 	and r4, sp, #4
 	sub sp, sp, r4
 	bl dmb
-	bl pageFaultHandler
+	bl page_fault_handler
 	bl dmb
 	add sp, sp, r4
 	pop {r0-r4, r12, lr}
