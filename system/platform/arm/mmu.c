@@ -61,14 +61,20 @@ int main(int argc, char *argv[]) {
 
 #endif
 
-    int i,j,k=0;
     int pg;
     int asid;
     int page_base;
+    int page_base_target;
     int pg_to_map;
+    int pg_to_map_to;
     int pg_proc_offset;
+#ifdef COMP
+    int region_copies;
+#endif
 
-    /* Identity mappings */
+    /* Identity mappings 
+       shift << 20 for 1M "section base" type mappings 
+    */
     for (asid = 0; asid < NPROC; asid++){
       for (pg = 0; pg < NUM_PAGE_TABLE_ENTRIES; pg++){ 
         page_table[asid][pg] = (pg << 20 | AP_RW | CACHE_ENABLE | SECTION_BASE);
@@ -85,21 +91,31 @@ int main(int argc, char *argv[]) {
     
     /* Per process mappings in here, starting at BREAK */
     page_base = BREAK;
-    for (pg = 0; pg < NUM_PAGES_PER_PROC; pg++){
-      for (asid = 0; asid < NPROC; asid++){
-        pg_to_map = page_base + pg;
-        pg_proc_offset = (pg * (NPROC-1));
-        //        printf("pg_to_map(%x) = page_base(%x) + pg(%x) + pa_proc_offset(%x)\n", 
-        //     pg_to_map, page_base, pg, pg_proc_offset);
-        page_table[asid][pg_to_map] = 
-          ((pg_to_map + asid + pg_proc_offset) << 20 | AP_RW | CACHE_ENABLE | SECTION_BASE);
+    page_base_target = BREAK;
+#ifdef COMP
+    for (region_copies = 0; region_copies < NPROC; region_copies++ ) {
+#endif      
+      for (pg = 0; pg < NUM_PAGES_PER_PROC; pg++){
+        for (asid = 0; asid < NPROC; asid++){
+          pg_to_map = page_base + pg;
+          pg_to_map_to = page_base_target + pg;
+          pg_proc_offset = (pg * (NPROC-1));
+#ifdef MT
+          //printf("pg_to_map(%x), page_base(%x) + pg(%x) + pg_proc_offset(%x) -- page_base_target(%x), pg_to_map_to(%x)\n", 
+          //       pg_to_map, page_base, pg, pg_proc_offset, page_base_target, pg_to_map_to);
+#endif
+          page_table[asid][pg_to_map] = 
+            ((pg_to_map_to + asid + pg_proc_offset) << 20 | AP_RW | CACHE_ENABLE | SECTION_BASE);
         
 #ifdef MT
-        printf("--pt[%d][%08x]: %08x\n", asid, pg_to_map*1024*1024, page_table[asid][pg_to_map]);        
+          printf("pt[%d][%08x]: %08x\n", asid, pg_to_map*1024*1024, page_table[asid][pg_to_map]);        
 #endif
+        }
       }
-    }
-
+#ifdef COMP      
+      page_base += NUM_PAGES_PER_PROC;
+      }
+#endif    
 #ifdef MT    
 }
 #else
