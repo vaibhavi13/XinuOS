@@ -6,7 +6,8 @@
 #endif	
 
 /* this should be moved */
-//#define NUM_PAGE_TABLE_ENTRIES 0x1000
+#define NUM_PAGE_TABLE_ENTRIES 258
+//must address this
 //#define NUM_PAGE_TABLE_ENTRIES 256
 
 /* Process state constants */
