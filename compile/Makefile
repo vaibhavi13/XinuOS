@@ -19,7 +19,6 @@ $(info | VARIABLE       | Value                               |)
 $(info | -------------- | ----------------------------------- |)
 $(info | PLATFORM       | "arm-qemu"                          |)
 $(info | COMPILER_ROOT  | Location of arm-none-eabi-gcc suite |)
-$(info | LIBGCC_LOC     | Location of libgcc.a for suite      |)
 $(info )
 $(error PLATFORM is not set. Make sure you have a Makedefs file and the VARIABLES above set)
 endif
@@ -33,7 +32,6 @@ ifeq ($(PLATFORM),arm-qemu)
 	PLAT_LOADADDR = 0x00010000
 	LDARCH        = armelf
 	INCLUDE	      = -I$(TOPDIR)/include -I$(TOPDIR)/include/platform/$(ARCH) -I$(TOPDIR)/include/platform/$(PLATFORM)
-	LGCC          = -L$(LIBGCC_LOC) -lgcc
 
 else ifeq ($(PLATFORM),arm-bbb)
 
@@ -42,7 +40,6 @@ else ifeq ($(PLATFORM),arm-bbb)
 	PLAT_LOADADDR = 0x81000000
 	LDARCH        = armelf
 	INCLUDE	      = -I$(TOPDIR)/include -I$(TOPDIR)/include/platform/$(ARCH) -I$(TOPDIR)/include/platform/$(PLATFORM)
-	LGCC          = -L$(LIBGCC_LOC) -lgcc
 
 else ifeq ($(PLATFORM),x86-qemu)
 
@@ -52,7 +49,6 @@ else ifeq ($(PLATFORM),x86-qemu)
 	PLAT_CFLAGS = -DX86_QEMU -DBRELOC=${BRELOC} -DBOOTPLOC=${BOOTPLOC} -march=i586 -m32 -O0
 	LDARCH      = elf_i386
 	INCLUDE	    = -I$(TOPDIR)/include -I$(TOPDIR)/include/platform/$(ARCH) -I$(TOPDIR)/include/platform/$(PLATFORM)
-	LGCC        =
 
 else ifeq ($(PLATFORM),x86-galileo)
 
@@ -60,13 +56,13 @@ else ifeq ($(PLATFORM),x86-galileo)
 	PLAT_CFLAGS = -DX86_GALILEO -march=i586 -m32 -O
 	LDARCH      = elf_i386
 	INCLUDE	    = -I$(TOPDIR)/include -I$(TOPDIR)/include/platform/$(ARCH) -I$(TOPDIR)/include/platform/$(PLATFORM)
-	LGCC =
 endif
 
 TOPDIR		=	..
 
 CC		=	${COMPILER_ROOT}gcc
 LD		=	${COMPILER_ROOT}ld
+LGCC	:=  $(shell $(CC) -print-libgcc-file-name)
 OBJCOPY		=	${COMPILER_ROOT}objcopy
 XINU		=	$(TOPDIR)/compile/xinu
 XINUBIN		=	$(TOPDIR)/compile/xinu.bin
