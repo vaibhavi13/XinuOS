@@ -18,7 +18,7 @@ $(info )
 $(info | VARIABLE       | Value                               |)
 $(info | -------------- | ----------------------------------- |)
 $(info | PLATFORM       | "arm-qemu"                          |)
-$(info | COMPILER_ROOT  | Location of arm-none-eabi-gcc suite |)
+$(info | CC             | Path to suitable arm-none-eabi-gcc  |)
 $(info )
 $(error PLATFORM is not set. Make sure you have a Makedefs file and the VARIABLES above set)
 endif
@@ -60,10 +60,9 @@ endif
 
 TOPDIR		=	..
 
-CC		=	${COMPILER_ROOT}gcc
-LD		=	${COMPILER_ROOT}ld
-LGCC	:=  $(shell $(CC) -print-libgcc-file-name)
-OBJCOPY		=	${COMPILER_ROOT}objcopy
+LGCC		:=  $(shell $(CC) -print-libgcc-file-name)
+LD			:=  $(shell $(CC) -print-prog-name=ld)
+OBJCOPY		:=  $(shell $(CC) -print-prog-name=objcopy)
 XINU		=	$(TOPDIR)/compile/xinu
 XINUBIN		=	$(TOPDIR)/compile/xinu.bin
 XINUBOOT	=	$(TOPDIR)/compile/xinu.boot
