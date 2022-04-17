@@ -122,7 +122,7 @@ endif
 DEFS		= 	-DBSDURG -DVERSION=\""`cat $(VERSIONFILE)`"\"
 
 # Compiler flags
-CFLAGS  =  ${PLAT_CFLAGS} -fno-builtin -fno-stack-protector -nostdlib -c -Wall ${DEFS} ${INCLUDE}
+CFLAGS  =  ${PLAT_CFLAGS} -fno-builtin -fno-stack-protector -nostdlib -c -Wall -Werror ${DEFS} ${INCLUDE}
 SFLAGS  = ${INCLUDE}
 
 # Loader flags
