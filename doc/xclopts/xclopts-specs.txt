@@ -1,0 +1,77 @@
+command line arguments:
+
+A program (our context is C-programs in the Linua-x/Unix-like environments) takes many command line arguments.
+These are passed to the "main" function in the input paremeter char *argv[].
+
+Some of these arguments change the behaviour of the program (at run time) and some of these arguments serve as
+additional data to the program.
+
+The options are those command line arguments that modify the normal behavior of the program and others are
+non-option arguments.
+These options and non-option arguments may be seen as valid/acceptable arguments by the program.
+
+
+Consider for example:
+	ls -a --quote-name --block-size=1K  /home/steve/ -rt --classify -T 10 /etc/X11
+
+Here the program name (argv[0]) is "ls" with some other command line arguments.
+
+Out of these command line arguments, the "-a", "--quote-name" "--block-size=1K", "-rt" "--classify" "-T 10"
+affects the behaviour of the program (what is displayed and how). The remaining two arguments "/home/steve"
+and "etc/X11" just serves as information to the ls - that you want to get the directory listing of those two paths.
+
+The command line arguments "-a", "-rt" "-T 10" are called short options. These are single letters used with a starting "-"
+and followed by that single letter without any space after "-".
+What about "-rt"? That is not a single letter. For historical reasons short options could be clubbed together.
+So this actually equivalently could be given as two separate command line arguments "-r" and "-t".
+What about "-T 10" or even "-T10"? Here the short option is -T and it requires an additional argument - an optarg.
+In our example "10" is that optarg for the option "T". An optarg further changes the effect of that option.
+
+Long options are those options that are more than one character long (and may have "-" inside them).
+These used with a starting "--" followed by that option without any space after "--".
+In our "quote-name" "block-size" "classify" are long options. Long options also coule require an optarg or not.
+
+In Linux/Unix you get a function to do manage all the complexity of the command line arguments. Look for man getopt,
+man 3 getopt, man getopt_long for more information.
+
+
+Xinu does not have "getopt" functionality. This effort aims to add that (through the "xgetopts" library)
+
+We fiorst need to tell what are our long options 
+
+First a short intuitive BNF for the options and option-specifications.
+This is only intuitive (and may not stand test of any rigorous BNF).
+
+<lower>     :=  [a-z]								# lowercase letters
+<upper>     :=  [A-Z]								# uppercase letters
+<num>       :=  [0-9]								# digits
+
+<alpha>     :=  <lower> | <upper>					# any letter lower- or upper-case
+<alnum>     :=  <alpha> | <num>						# any letter or any digit
+<anStr>     :=  <alnum> | <anStr><alnum>			# alpha-numeric strings (of finite length)
+
+<llStr>     :=  '' | <anStr>[[-]{0,1}<anStr>]*		# alpha-numeric strings (of finite length)
+
+ssOptSpec   :=  <alnum>[:]{0,2}						# specification of a single short option
+llOptSpec   :=  <alnum>[<llStr>]*[:]{0,2}			# specification of a single long option
+
+An option specification gives the name of the option and if it requires an optarg or not (and if optarg is non-mandatory).
+Some examples of single option specification are:
+	a				option (name) is "a" to be used as "-a" on the command line, no optarg required
+	b:				option (name) is "b" to be used as "-b" on the command line, a mandatory optarg is required
+	c::				option (name) is "c" to be used as "-c" on the command line, an optarg is required, but not mandatory 
+	0				option (name) is "0" to be used as "-0" on the command line, no optarg required
+	1:				option (name) is "1" to be used as "-1" on the command line, a mandatory optarg is required
+	4::				option (name) is "4" to be used as "-4" on the command line, an optarg is required, but not mandatory 
+
+	a-one			option (name) is "a-one" to be used as "--a-one" on the command line, no optarg required
+	b-at-once:		option (name) is "b-at-once" to be used as "--b_at-once=<optarg>" on cmd line, mandatory <optarg> required
+	newcat::		option (name) is "newcat" to be used as "--newcat=<optarg>" or "newcat" on cmd line, <optarg> is not mandatory
+
+
+Xinu xgetopts behaves like GNU getopt (see man 3 getopt). Currently only short options are supported only for the no-optarg and
+mandatory optarg choices. (So the specification, e.g., a:: will be flagged as an error).
+
+So we have [a-zA-Z0-9] choices fo the short options - 26+26+10 = 62 in all.
+
+

@@ -24,6 +24,14 @@
 
 #include <xinu.h>
 
+int test_clOptsSpecs(int nargs, char *args[]);
+
+int test_cmdArgs(int nargs, char *args[]);
+int test_cmdArgs_02(int nargs, char *args[]);
+int test_cmdArgs_03(int nargs, char *args[]);
+
+int test_memory(int nargs, char *args[]);
+
 
 shellcmd xsh_test(int nargs, char *args[]) {
 
@@ -44,22 +52,37 @@ shellcmd xsh_test(int nargs, char *args[]) {
 	args++;
 	nargs--;
 	// note that args has moved forward (and nargs has decreased by 1)
-	printf("invoking command {%s}\n\twith %d args {\n", args[0], nargs-1);
+	printf("invoking command {%s}\n\twith args {\n\t\t", args[0]);
 
-	int i;
-	for (i = 1; i < nargs; i++) {
-		if ((i-1)%5==0) {printf("\t\t");}
+	for (int i = 1; i < nargs-1; i++) {
 		printf("[%d]=[%s] ", i, args[i]); 
-		if (i%5 == 0) {printf("\n");}
+		if (i%5 == 0) {printf("\n\t\t");}
 	}
-	if (i > 1) {
-		if (((i-1)%5) != 0) { printf("\n\t"); }
-		else { printf("\t"); }
+	if (nargs > 1) {
+		printf("[%d]=[%s] ", nargs-1, args[nargs-1]);
 	}
-	else { printf("\t"); }
-	printf("}\n\n");
+	printf("\b\n\t}\n\n");
 
-	// call a function here that is to be tested
+
+	if (strcmp(args[0], "clo") == 0) {
+		test_clOptsSpecs(nargs, args);
+	}
+
+	else if (strcmp(args[0], "cmd") == 0) {
+		test_cmdArgs(nargs, args);
+		// test_cmdArgs_02(--nargs, ++args);
+		// test_cmdArgs(--nargs, ++args);
+		// test_cmdArgs_02(--nargs, ++args);
+	}
+
+	else if (strcmp(args[0], "mem") == 0) {
+		test_memory(nargs, args);
+		// test_memory(nargs, args);
+	}
+
+	else {
+		fprintf(stderr, "test command [%s] not found...\n", args[0]);
+	}
 
 	return OK;
 } /* end of shellcmd xsh_test(int nargs, char *args[]) */
