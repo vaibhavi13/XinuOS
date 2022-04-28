@@ -6,7 +6,7 @@
  *------------------------------------------------------------------------
  */
 int strlen(
-	  char *str				/* string to use	*/
+	const char *str				/* string to use	*/
 	)
 {
 	int	len;
