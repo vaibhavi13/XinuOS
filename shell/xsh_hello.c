@@ -8,8 +8,8 @@
  */
 shellcmd xsh_hello(int32 nargs, char *args[]) {
 
- if(nargs < 2){
-   printf("invalid input, missing argument\n");
+ if(nargs != 2){
+   printf("invalid input, not valid argument\n");
    return 1;
  }
 
