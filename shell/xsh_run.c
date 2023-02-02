@@ -8,6 +8,7 @@ shellcmd xsh_run(int nargs, char *args[]) {
 // Print list of available functions
 if ((nargs == 1) || (strncmp(args[1], "list", 4) == 0)) {
   printf("hello\n");
+  printf("list\n");
   printf("prodcons\n");
   return 0;
 }
