@@ -1,17 +1,13 @@
 #include <xinu.h>
 #include <prodcons.h>
 
-void producer(int count) {
-  // TODO: implement the following:
-  // - Iterates from 0 to count (count including)
-  //   - setting the value of the global variable 'n' each time
-  //   - print produced value (new value of 'n'), e.g.: "produced : 8"
+void producer(int count, sid32 can_produce, sid32 can_consume) {
   
-    int i = 0;
-    for(i = 0 ; i <=count ; i++){
-       n = i ;
-       printf("produced : %d \n",n);
-    }    
-
-
+  int i = 0;
+  for(i = 0 ; i <=count ; i++){
+    wait(can_produce);
+    n = i ;
+    printf("produced : %d \n",n);
+    signal(can_consume);
+  }    
 }
