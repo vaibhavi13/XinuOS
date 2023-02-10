@@ -7,7 +7,7 @@ void producer(int count, sid32 can_produce, sid32 can_consume) {
   for(i = 0 ; i <=count ; i++){
     wait(can_produce);
     n = i ;
-    printf("\nproduced : %d",n);
+    printf("produced : %d \n",n);
     signal(can_consume);
   }    
 }
