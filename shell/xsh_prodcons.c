@@ -4,9 +4,9 @@
 
 int n;
 
-shellcmd xsh_prodcons(int nargs, char *args[]){
+shellcmd xsh_prodcons(int nargs, char *args[], sid32 sem){
 
-  //wait(sem_prodcons);
+  wait(sem);
 
   int count = 200;
 

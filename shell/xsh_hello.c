@@ -6,9 +6,9 @@
  * xsh_date - obtain and print the current month, day, year, and time
  *------------------------------------------------------------------------
  */
-shellcmd xsh_hello(int32 nargs, char *args[]) {
+shellcmd xsh_hello(int32 nargs, char *args[], sid32 sem) {
 
-//wait(sem_hello);
+wait(sem);
 
  if(nargs != 2){
    printf("invalid input, not valid argument\n");
