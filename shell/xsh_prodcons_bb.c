@@ -7,7 +7,7 @@ int tail;
 
 shellcmd xsh_prodcons_bb(int nargs, char *args[], sid32 sem){
 
-  if(nargs > 5){
+  if(nargs != 5){
     printf("invalid input,too many arguments\n");
     signal(sem);
     return (1);
