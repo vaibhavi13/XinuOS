@@ -55,6 +55,9 @@ extern	shellcmd  xsh_ping	(int32, char *[]);
 /* in file xsh_prodcons.c */
 extern  shellcmd  xsh_prodcons  (int32, char *[], sid32);
 
+/* in file xsh_prodcons_bb.c */
+extern  shellcmd  xsh_prodcons_bb  (int32, char *[], sid32);
+
 /* in file xsh_ps.c */
 extern	shellcmd  xsh_ps	(int32, char *[]);
 
