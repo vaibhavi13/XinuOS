@@ -13,7 +13,7 @@ shellcmd xsh_prodcons_bb(int nargs, char *args[], sid32 sem){
     return (1);
   }
   
-  int no_of_producers, no_of_consumers, i_producers , j_consumers;
+  int no_of_producers, no_of_consumers, i_producers, j_consumers;
 
   no_of_producers = atoi(args[1]);
   no_of_consumers = atoi(args[2]);
