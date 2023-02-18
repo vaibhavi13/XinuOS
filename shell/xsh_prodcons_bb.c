@@ -27,19 +27,21 @@ shellcmd xsh_prodcons_bb(int nargs, char *args[], sid32 sem){
   }
   
   sid32 sem_prodcons_bb = semcreate(0);
+  sid32 mutex = semcreate(1);
   sid32 sem_count = semcreate(no_of_consumers + 1);
 
   sid32 sem_write = semcreate(5);
   sid32 sem_read = semcreate(0);
 
   for(int i = 0 ; i < no_of_producers ; i++){
-   resume(create(producer_bb, 1024, 20, "producer_bb", 4, i, i_producers, sem_write, sem_read));
+   resume(create(producer_bb, 1024, 20, "producer_bb", 5, i, i_producers, sem_write, sem_read, mutex));
   }
   
   for(int i = 0 ; i < no_of_consumers ; i++){
-   resume(create(consumer_bb, 1024, 20, "consumer_bb", 6, i, j_consumers, sem_write, sem_read, sem_count, sem_prodcons_bb));
+   resume(create(consumer_bb, 1024, 20, "consumer_bb", 7, i, j_consumers, sem_write, sem_read, sem_count, sem_prodcons_bb, mutex));
   }
   wait(sem_prodcons_bb);
+  semdelete(mutex);
   semdelete(sem_prodcons_bb);
   signal(sem);
   return (0);
