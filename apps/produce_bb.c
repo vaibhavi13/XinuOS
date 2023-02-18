@@ -1,5 +1,5 @@
 #include <xinu.h>
-#include <prodcons.h>
+#include <prodcons_bb.h>
 
 void producer_bb(int producer_no, int i_producers, sid32 sem_write, sid32 sem_read){   
   int i;
