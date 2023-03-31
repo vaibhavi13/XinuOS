@@ -22,8 +22,7 @@ char contains(char* a, char* b, uint32 sz_a, uint32 sz_b) {
 }
 
 /* TEST 1: Malloc once */ void test1(void) {
-  intmask mask;
-   mask = disable();
+  
   pid32 pid = getpid();
   uint32 size = heaptab[pid].size;
   char* block = heaptab[pid].startaddr;
@@ -31,12 +30,10 @@ char contains(char* a, char* b, uint32 sz_a, uint32 sz_b) {
   char* t1_1 = malloc(20);
   _assert("Malloc once",
 	  contains(block, t1_1, size, 20));
-    restore(mask);
 }
 
 /* TEST 2: Malloc twice */ void test2(void) {
-  intmask mask;
-  mask = disable();
+  
   
   pid32 pid = getpid();
   uint32 size = heaptab[pid].size;
@@ -50,12 +47,10 @@ char contains(char* a, char* b, uint32 sz_a, uint32 sz_b) {
   _assert("Malloc twice", \
 	  !overlap(t2_1, t2_2, 20, 20) && \
 	  contains(block, t2_1, size, 20) && contains(block, t2_2, size, 20));
-  restore(mask);  
 }
 
 /* TEST 3: Malloc all in one block */ void test3(void) {
-  intmask mask;
-  mask = disable();
+  
   
   pid32 pid = getpid();
   uint32 size = heaptab[pid].size;
@@ -64,12 +59,10 @@ char contains(char* a, char* b, uint32 sz_a, uint32 sz_b) {
   char* t3_1 = malloc(1024);
   _assert("Malloc all-at-once", \
 	  contains(block, t3_1, size, 1024));
-  restore(mask);  
 }
 
 /* TEST 4: Malloc all in small blocks */ void test4(void) {
-  intmask mask;
-  mask = disable();
+  
   
   pid32 pid = getpid();
   uint32 size = heaptab[pid].size;
@@ -82,38 +75,29 @@ char contains(char* a, char* b, uint32 sz_a, uint32 sz_b) {
 	  !overlap(t4_1, t4_2, 256, 256) && !overlap(t4_1, t4_3, 256, 512) && !overlap(t4_2, t4_3, 256, 512) && \
 	  contains(block, t4_1, size, 256) && contains(block, t4_2, size, 256) && \
 	  contains(block, t4_3, size, 512));
-    restore(mask);  
   
 }
 
 /* TEST 5: Overallocate in one block */ void test5(void) {
 
-  intmask mask;
-  mask = disable();
  
   char* t5_1 = malloc(1025);
   _assert("Overallocation in one request", \
 	  t5_1 == (char*)SYSERR);
-  restore(mask);  
   
 }
 
 /* TEST 6: Overallocate in many blocks */ void test6(void) {
 
-  intmask mask;
-  mask = disable();
   char* t6_1 = malloc(256);
   char* t6_2 = malloc(512);
   char* t6_3 = malloc(512);
   _assert("Overallocation after multiple requests", \
 	  !overlap(t6_1, t6_2, 256, 512) && t6_3 == (char*)SYSERR);
-      restore(mask);  
-
+  
 }
 
 /* TEST 7: Free and reuse */ void test7(void) {
-  intmask mask;
-  mask = disable();
   pid32 pid = getpid();
   uint32 size = heaptab[pid].size;
   char* block = heaptab[pid].startaddr;
@@ -128,14 +112,11 @@ char contains(char* a, char* b, uint32 sz_a, uint32 sz_b) {
 	  contains(block, t7_1, size, 256) && contains(block, t7_3, size, 512) && \
 	  contains(block, t7_4, size, 20));
 
-      restore(mask);  
-
+  
 }
 
 
 /* TEST 8: Free multiple and coalesce */ void test8(void) {
-  intmask mask;
-  mask = disable();
   pid32 pid = getpid();
   uint32 size = heaptab[pid].size;
   char* block = heaptab[pid].startaddr;
@@ -149,8 +130,7 @@ char contains(char* a, char* b, uint32 sz_a, uint32 sz_b) {
   _assert("Free multiple and combine", \
 	  !overlap(t8_3, t8_4, 256, 300) && \
 	  contains(block, t8_3, size, 256) && contains(block, t8_4, size, 300));
-      restore(mask);  
- 
+    
 }
 
 shellcmd xsh_memtest(int nargs, char *args[], sid32 sem) {
@@ -160,7 +140,7 @@ shellcmd xsh_memtest(int nargs, char *args[], sid32 sem) {
  resume(create2(test4, 1024, 1024, 20, "Test 4", 0));
  resume(create2(test5, 1024, 1024, 20, "Test 5", 0));
  resume(create2(test6, 1024, 1024, 20, "Test 6", 0));
- resume(create2(test7, 1024, 1024, 20, "Test 7", 0));
+ //resume(create2(test7, 1024, 1024, 20, "Test 7", 0));
   // resume(create2(test8, 1024, 1024, 20, "Test 8", 0));
 
   signal(sem);

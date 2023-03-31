@@ -2,9 +2,9 @@
 #include <heap.h>
 
 extern heap_t heaptab[];
-struct heapblk heapblklist;
+struct heapblk heapblklist[NPROC];
 
-void initheap(char* startaddr, uint32 size) {
+void initheap(char* startaddr, uint32 size, pid32 pid) {
   /* This function is called when the heap is constructed */
   /*   Use as needed to setup the free list               */
 
@@ -13,15 +13,11 @@ void initheap(char* startaddr, uint32 size) {
   intmask mask;
   mask = disable();
 
-  heapblklist.mlength = size;
+  heapblklist[pid].mlength = size;
+  heapblklist[pid].mnext = (struct heapblk*)startaddr;
+  heapblklist[pid].mnext->mlength = size;
+  heapblklist[pid].mnext->mnext = NULL;
 
-  // struct heapblk *last;
-  // last->mlength = 0;
-  // last->mnext = NULL;
-
-  heapblklist.mnext = startaddr;
-  heapblklist.mnext->mlength = size;
-  heapblklist.mnext->mnext = NULL;
   restore(mask);
   return;
 }
@@ -44,43 +40,34 @@ void* malloc(uint32 size) {
   }
   
   size = (uint32) roundmb(size); 
-  prev = &heapblklist;
+  pid32 pid = getpid();
+
+  prev = &heapblklist[pid];
   curr = prev->mnext;
-  // if(curr == NULL){
-  //   curr = prev;
-  // }
-  printf("\n prev address is %d", prev);
-  printf("\n curr address is %d", curr);
-  
-  printf("\n size required is %d",size);
+
   while (curr != NULL) { /* search free list */
     if(curr->mlength == size) { /* block is exact match */
       prev->mnext = curr->mnext;
-      heapblklist.mlength -= size;
-      printf("\n returning address as %d",curr);
+      heapblklist[pid].mlength -= size;
       restore(mask);
       return (char *)(curr);
-    }else if (curr->mlength > size) { /* split big block*/
-      printf("\n inside split block");
+    } else if (curr->mlength > size) { /* split big block*/
       leftover = (struct heapblk *) ((uint32) curr + size);
-      printf("\n leftover address is %d", (char *)(leftover));
       leftover->mnext = curr->mnext;
       prev->mnext = leftover;
       leftover->mlength = curr->mlength - size;
-      heapblklist.mlength -= size;
-      printf("\nleftover size left %d\n", leftover->mlength);
-      printf("\n returning address as %d\n",curr);
+      heapblklist[pid].mlength -= size;
       restore(mask);
       return (char *)(curr);
     } else { /* move to next block */
       prev = curr;
       curr = curr->mnext;
-      printf("curr add is %u\n",curr);
-      if(curr == NULL){
-        printf("\n now curr is null");
-      }else{
-        printf("\n size of curr block is %d\n",curr->mlength);
-      }
+      // printf("curr add is %u\n",curr);
+      // if(curr == NULL){
+      //   printf("\n now curr is null \n");
+      // }else{
+      //   printf("\n size of curr block is %d\n",curr->mlength);
+      // }
     }
   }
 
@@ -113,21 +100,21 @@ void free(char* blkaddr, uint32 size) {
   size = (uint32) roundmb(size);
   block = blkaddr;
   printf("\n free block address is %d\n",block);
-  prev = &heapblklist; /* walk along free list */
-  next = heapblklist.mnext;
+  prev = &heapblklist[pid]; /* walk along free list */
+  next = heapblklist[pid].mnext;
   
   while ((next != NULL) && (next < block)) {
       prev = next;
       next = next->mnext;
   }
 
-  if (prev == &heapblklist) { /* compute top of previous block*/
+  if (prev == &heapblklist[pid]) { /* compute top of previous block*/
       top = (uint32) NULL;
   } else {
       top = (uint32) prev + prev->mlength;
   }
 /* Insure new block does not overlap previous or next blocks */
-if (((prev != &heapblklist) && (uint32) block < top) || ((next != NULL) && (uint32) block+size>(uint32)next)) {
+if (((prev != &heapblklist[pid]) && (uint32) block < top) || ((next != NULL) && (uint32) block+size>(uint32)next)) {
     restore(mask);
     return SYSERR;
 }

@@ -20,7 +20,9 @@ syscall getheap(pid32 pid, uint32 hsize) {
   heaptab[pid].size = hsize;
   heaptab[pid].startaddr = heap;
   heaptab[pid].freelist = heap;
-  initheap(heap, hsize);
+  // printf("process id in heap %d \n", pid);
+
+  initheap(heap, hsize, pid);
   
   restore(mask);
   return OK;
