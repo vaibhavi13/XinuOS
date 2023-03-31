@@ -62,12 +62,6 @@ void* malloc(uint32 size) {
     } else { /* move to next block */
       prev = curr;
       curr = curr->mnext;
-      // printf("curr add is %u\n",curr);
-      // if(curr == NULL){
-      //   printf("\n now curr is null \n");
-      // }else{
-      //   printf("\n size of curr block is %d\n",curr->mlength);
-      // }
     }
   }
 
@@ -99,9 +93,8 @@ void free(char* blkaddr, uint32 size) {
 
   size = (uint32) roundmb(size);
   block = blkaddr;
-  printf("\n free block address is %d\n",block);
   prev = &heapblklist[pid]; /* walk along free list */
-  next = heapblklist[pid].mnext;
+  next = prev->mnext;
   
   while ((next != NULL) && (next < block)) {
       prev = next;
@@ -126,7 +119,7 @@ if (top == (uint32) block) { /* coalesce with previous block */
 } else { /* link into list as new node */
     block->mnext = next;
     block->mlength = size;
-    prev = block;
+    prev->mnext = block;
 }
 /* Coalesce with next block if adjacent */
 if (((uint32) block + block->mlength) == (uint32) next) {
