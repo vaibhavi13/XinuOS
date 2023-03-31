@@ -20,12 +20,14 @@ syscall xsh_futest(int nargs, char *args[], sid32 sem) {
   
   int i = 1;
   while (i < nargs) {
-    // TODO: write your code here to check the validity of arguments 
-    // if(strcmp(args[i], "g") != 0){
-    //     printf("\nInvalid argument");
-    //     signal(sem);
-    //     return 1;      
-    // }
+   // TODO: write your code here to check the validity of arguments  , testing modification
+    if(strcmp(args[i], "g") != 0){  
+        if(atoi(args[i]) == 0){
+          printf("Invalid argument\n");
+          signal(sem);
+          return 1; 
+        }      
+    }
     i++;
   }
 

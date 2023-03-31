@@ -45,6 +45,9 @@ extern	shellcmd  xsh_led	(int32, char *[]);
 /* in file xsh_memdump.c */
 extern	shellcmd  xsh_memdump	(int32, char *[]);
 
+/* in file xsh_memtest.c */
+extern	shellcmd  xsh_memtest	(int32, char *[], sid32);
+
 /* in file xsh_memstat.c */
 extern	shellcmd  xsh_memstat	(int32, char *[]);
 
