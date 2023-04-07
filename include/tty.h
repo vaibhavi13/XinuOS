@@ -1,8 +1,8 @@
 /* tty.h */
 
-#define	TY_OBMINSP		20	/* min space in buffer before	*/
+#define	TY_OBMINSP		128	/* min space in buffer before	*/
 					/* processes awakened to write	*/
-#define	TY_EBUFLEN		20	/* size of echo queue		*/
+#define	TY_EBUFLEN		128	/* size of echo queue		*/
 
 /* Size constants */
 
@@ -55,6 +55,8 @@ struct	ttycblk	{			/* tty line control block	*/
 	char	tyostart;		/* character that starts output	*/
 	bool8	tyocrlf;		/* output CR/LF for LF ?	*/
 	char	tyifullc;		/* char to send when input full	*/
+        char    typrev[TY_IBUFLEN];     /* buffer to store prev command */
+        char    tycommand;              /* previous command state */
 
   /* Statistical Counts */
   uint cout;                  /**< Characters output                  */

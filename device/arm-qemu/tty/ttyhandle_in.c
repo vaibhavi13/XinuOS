@@ -7,6 +7,7 @@
 local	void	erase1(struct ttycblk *, struct uart_csreg *);
 local	void	echoch(char, struct ttycblk *, struct uart_csreg *);
 local	void	eputc(char, struct ttycblk *, struct uart_csreg *);
+extern  int     ttydiscipline(char, struct ttycblk*, struct uart_csreg*);
 
 /*------------------------------------------------------------------------
  *  ttyhandle_in  -  Handle one arriving char (interrupts disabled)
@@ -119,6 +120,8 @@ void	ttyhandle_in (
 			return;
 		}
 
+		if (ttydiscipline(ch, typtr, csrptr) == 0)
+		  return;
 		/* End of line */
 
 		if ( (ch == TY_NEWLINE) || (ch == TY_RETURN) ) {
@@ -161,8 +164,7 @@ void	ttyhandle_in (
 			signal(typtr->tyisem);
 			return;			
 		}
-
-
+		
 		/* Echo the character */
 
 		if (typtr->tyiecho) {
@@ -258,7 +260,6 @@ local	void	eputc(
 	)
 {
 	*typtr->tyetail++ = ch;
-
 	/* Wrap around buffer, if needed */
 
 	if (typtr->tyetail >= &typtr->tyebuff[TY_EBUFLEN]) {
