@@ -24,14 +24,15 @@ int ttydiscipline(char ch,
      * Copy the contents of the 'tyibuff' buffer from the 'tyihead' through 'tyitail'
      *     into the 'typrev' buffer.
      */
+
+    memset(typtr->typrev, 0, TY_IBUFLEN);
+ 
     
     char *temp;
     temp = typtr->tyihead;
 
     char *prev_temp;
     prev_temp = &typtr->typrev[0];
-    printf("address of prev is %u",prev_temp);
-
     while(temp != typtr->tyitail){
       *prev_temp = *temp;
       prev_temp++;
@@ -80,6 +81,7 @@ int ttydiscipline(char ch,
           echo(*typtr->tyitail,typtr,csrptr);
           typtr->tyitail++;
           prev++;
+          typtr->tyicursor++;
         }
     return SKIP;    
   }  
