@@ -28,6 +28,9 @@ extern	shellcmd  xsh_ethstat	(int32, char *[]);
 /* in file xsh_exit.c */
 extern	shellcmd  xsh_exit	(int32, char *[]);
 
+/* in file xsh_fstest.c */
+extern	shellcmd  xsh_fstest (int32, char *[], sid32);
+
 extern shellcmd xsh_futest (int32, char *[], sid32);
 
 /* in file xsh_help.c */

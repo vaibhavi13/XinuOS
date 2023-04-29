@@ -4,6 +4,7 @@
 
 #include <xinu.h>
 #include <string.h>
+#include <fs.h>
 
 extern	void	start(void);	/* Start of Xinu code			*/
 extern	void	*_end;		/* End of Xinu code			*/
@@ -236,15 +237,13 @@ static	void	sysinit()
 	prptr->prstklen = NULLSTK;
 	prptr->prstkptr = 0;
 	currpid = NULLPROC;
-
-  /* Initialize queues */
-  
-  for(i = NPROC; i <= NQENT - 1; i+=2) {
-    queuetab[i].qnext = EMPTY;
-  }
+	
+	for(i = NPROC; i <= NQENT - 1; i+=2) {
+	  queuetab[i].qnext = EMPTY;
+	}
 	
 	/* Initialize semaphores */
-
+	
 	for (i = 0; i < NSEM; i++) {
 		semptr = &semtab[i];
 		semptr->sstate = S_FREE;
@@ -265,6 +264,11 @@ static	void	sysinit()
 	if (ptinit(PTMAXMSG) == SYSERR) {
 		kprintf("ptinit failed\n");
 	}
+
+	/* Initialize ram FS */
+	bs_mk_ramdisk(FS_DEFAULT, FS_DEFAULT);
+	fs_mkfs();
+	fs_mount();
 
 	/* Initialize the real time clock */
 
