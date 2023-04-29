@@ -356,7 +356,7 @@ void test_read_8(int fd, char* buf, char* testbuf) {
 }
 
 
-shellcmd xsh_fstest(int nargs, char *args[], sid32 sem) {
+shellcmd xsh_fstest(int nargs, char *args[]) {
   char test_buff[1700];
   char testnum = 0;
   char test_bitmask[fsd->freemasksz];
@@ -550,7 +550,5 @@ shellcmd xsh_fstest(int nargs, char *args[], sid32 sem) {
       }
     }
   }
-
-  signal(sem);
   return 0;
 }
