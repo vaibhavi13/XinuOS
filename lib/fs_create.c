@@ -18,24 +18,24 @@ syscall fs_create(char* filename) {
   intmask mask;
   mask = disable();
 
+  // space availble 
   int i;
   int next_free_block_index;
-  for(i = 2 ; i < MDEV_NUM_BLOCKS ; i++){
+  for(i = 2 ; i < DIR_SIZE ; i++){
     // to check if free size is available
     if(fs_getmaskbit(i) == 0){
       next_free_block_index = i;
       break;
     }
   }
-  if(i == MDEV_NUM_BLOCKS){
+  if(i == DIR_SIZE){
     return SYSERR;
   }
   
   // to check if filename already exists 
-  
   for (i=0; i<fsd->root_dir.numentries; i++) {
      if(strcmp(filename,fsd->root_dir.entry[i].name) == 0){
-        printf("\nFile already exists");
+        // printf("\nFile already exists");
         return SYSERR;
      }
   }  
