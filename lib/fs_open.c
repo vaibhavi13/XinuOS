@@ -17,22 +17,13 @@ int fs_open(char* filename, int flags) {
   for (i=0; i<NUM_FD; i++){
       if(strcmp(fsd->root_dir.entry[oft[i].de].name, filename) == 0){
             if(oft[i].state == FSTATE_OPEN){
-              printf("\nFile already opened");
+              //printf("\nFile already opened");
               return SYSERR;
-            }else{
-              // if file is closed -> change its state to open
-              oft[i].state = FSTATE_OPEN;
-              oft[i].flag = flags;
-              return i;
             }
-            break;
       }
   }
-  if(i == NUM_FD){
-    printf("\nFile does not exist");
-    return SYSERR;
-  }
-
+  
+  /*
   for(i=0; i<NUM_FD; i++){
     if(oft[i].state == FSTATE_CLOSED){
       oft[i].state = FSTATE_OPEN;
@@ -50,6 +41,33 @@ int fs_open(char* filename, int flags) {
       return i;
     }
   }
+  */
 
-  return OK;
+  for(int k = 0; k < DIR_SIZE; k++) {
+    if (strcmp(fsd->root_dir.entry[k].name, filename) == 0) {
+
+      // opening file
+        for (i = 0; i < NUM_FD; i++) {
+          if(oft[i].state == 0 || oft[i].state == FSTATE_CLOSED) {
+            // i is the free index at oft available to open
+            break;
+          }
+        }
+        if (i == NUM_FD) {
+          return SYSERR;
+        }
+        inode_t node;
+        bs_read(fsd->root_dir.entry[k].inode_block, 0, &node, sizeof(inode_t));
+        oft[i].state = FSTATE_OPEN;
+        oft[i].fileptr = 0;
+        oft[i].de = k;
+        oft[i].flag = flags;
+        oft[i].in = node;
+        return i;
+    }
+
+  }
+
+
+  return SYSERR;
 }
