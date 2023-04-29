@@ -12,12 +12,12 @@ extern filetable_t oft[NUM_FD];
  */
 syscall fs_close(int fd) {
 
-  if(oft[fd].state == FSTATE_CLOSED){
-    printf("\nFile already closed");
+  if (oft[fd].state == FSTATE_CLOSED){
+    // printf("\nFile already closed");
     return SYSERR;
-  }else{
-    bs_write(fsd->root_dir.entry[oft[fd].de].inode_block, 0, &oft[fd].in, sizeof(oft[fd].in));
-    oft[fd].state = FSTATE_OPEN;
+  } else{
+    bs_write(fsd->root_dir.entry[oft[fd].de].inode_block, 0, &oft[fd].in, sizeof(inode_t));
+    oft[fd].state = FSTATE_CLOSED;
   }        
   return OK;
 }
