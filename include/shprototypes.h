@@ -33,6 +33,10 @@ extern	shellcmd  xsh_fstest (int32, char *[]);
 
 extern shellcmd xsh_futest (int32, char *[], sid32);
 
+extern shellcmd future_fib(int nargs, char *args[]);
+
+extern shellcmd future_free_test(int nargs, char *args[]);
+
 /* in file xsh_help.c */
 extern	shellcmd  xsh_help	(int32, char *[]);
 

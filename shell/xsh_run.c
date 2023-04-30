@@ -24,8 +24,12 @@ if(strncmp(args[1], "hello", 5) == 0) {
   resume (create(xsh_hello, 1024, 20, "hello", 3, nargs - 1, &(args[1]), sem_run));
   wait(sem_run);
 }  else if(strncmp(args[1], "fstest", 6) == 0) {
-  resume (create(xsh_fstest, 1024, 20 , "futest", 3, nargs - 1, &(args[1])));
+  resume (create(xsh_fstest, 1024, 20 , "fstest", 2, nargs - 1, &(args[1])));
   wait(sem_run);
+}else if((strncmp(args[1], "futest", 6) == 0) && strncmp(args[2], "--free", 6) == 0){
+  resume (create(future_free_test, 1024, 20 , "future_free_test", 2, nargs - 1, &(args[1])));
+}else if((strncmp(args[1], "futest", 6) == 0) && strncmp(args[2], "-f", 2) == 0){
+  resume (create(future_fib, 1024, 20 , "future_fib", 2, nargs - 1, &(args[1])));
 }else if(strncmp(args[1], "futest", 6) == 0) {
   resume (create(xsh_futest, 1024, 20 , "futest", 3, nargs - 1, &(args[1]), sem_run));
   wait(sem_run);
