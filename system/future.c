@@ -18,6 +18,13 @@ future_t* future_alloc(future_mode_t mode, uint size, uint nelem) {
   f->pid = NULL;
   if(mode == FUTURE_SHARED){
     f->get_queue = newqueue();
+  }else if(mode == FUTURE_QUEUE){
+    f->get_queue = newqueue();
+    f->set_queue = newqueue();
+    f->max_elems = nelem;
+    f->count = 0;
+    f->head = 0;
+    f->tail = 0;
   }
   restore(mask);
   return f;
@@ -34,11 +41,7 @@ syscall future_free(future_t* f){
     return SYSERR;
   }
 
-  if(f->mode == FUTURE_EXCLUSIVE){   
-    if(f->pid != NULL){
-      kill(f->pid);   
-    }
-  }else if(f->mode == FUTURE_SHARED){   
+  if(f->mode == FUTURE_SHARED){   
     if(f->get_queue != NULL){
       qid16 queue = f->get_queue;
       pid32	pid;
@@ -47,10 +50,32 @@ syscall future_free(future_t* f){
       }
     }
     f->get_queue = NULL;
+  }else if(f->mode == FUTURE_QUEUE){
+    if(f->get_queue != NULL){
+      qid16 queue = f->get_queue;
+      pid32	pid;
+      while ((pid=dequeue(queue)) != EMPTY){
+        kill(pid);
+      }
+    }
+    if(f->set_queue != NULL){
+      qid16 queue = f->set_queue;
+      pid32	pid;
+      while ((pid=dequeue(queue)) != EMPTY){
+        kill(pid);
+      }
+    }
+    f->get_queue = NULL;
+    f->set_queue = NULL;
     if(f->pid != NULL){
       kill(f->pid);   
     }
+    f->pid = NULL;
+    f = NULL;
   }
+
+
+
   if(freemem((char *)f,sizeof(future_t)) == SYSERR){
       restore(mask);
       return SYSERR;
@@ -106,6 +131,36 @@ syscall future_get(future_t* f,  void* out){
         restore(mask);
         return OK;  // state-> waiting
     }
+  }else if(f->mode == FUTURE_QUEUE){
+    // if future queue is empty -> put it in getqueue and suspend it -> once data is set , get it from head 
+    if(f->count == 0){
+      enqueue(getpid(),f->get_queue);
+      f->pid = getpid();
+      suspend(getpid());
+
+      char* headelemptr = f->data + (f->head * f->size);
+      memcpy(out, headelemptr, f->size); 
+      f->head++;
+      // wrap around code
+      f->head = f->head % f->max_elems;
+      f->count--;
+    
+    }else{
+    // future queue has data, so remove from head and check if process in setqueue was waiting -> if yes ,resume it
+      char* headelemptr = f->data + (f->head * f->size);
+      memcpy(out, headelemptr, f->size); 
+      f->head++;
+      // wrap around code
+      f->head = f->head % f->max_elems;
+      f->count--;
+
+      pid32 p = dequeue(f->set_queue);
+      if(p != EMPTY){
+        resume(p);
+      }
+    }
+    restore(mask); 
+    return OK;
   }  
 }
 
@@ -155,6 +210,42 @@ syscall future_set(future_t* f, void* in){
       restore(mask);
       return SYSERR;
     }
+  }else if(f->mode == FUTURE_QUEUE){
+   
+    // if future data queue is full , load it in setqueue , suspend current process and set it in tail
+    
+    if(f->count == f->max_elems){
+
+      enqueue(f->pid,f->set_queue);
+      f->pid = getpid();
+      suspend(getpid());
+
+      char* tailelemptr = f->data + (f->tail * f->size);
+      memcpy(tailelemptr, in, f->size);
+      f->tail++;
+      //wrap around code 
+      f->tail = f->tail % f->max_elems;
+      f->count++;
+
+    }else{
+    
+    // if future data queue is not full , add it in tail and check if getqueue process waiting -> resume it
+
+      char* tailelemptr = f->data + (f->tail * f->size);
+      memcpy(tailelemptr, in, f->size);
+      f->tail++;
+      //wrap around code 
+      f->tail = f->tail % f->max_elems;
+      f->count++;
+
+      pid32 p = dequeue(f->get_queue);
+      if(p != EMPTY){
+        resume(p);
+      }
+
+    }
+    restore(mask);
+    return OK;
   }  
 
 }
